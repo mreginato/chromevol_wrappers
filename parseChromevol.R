@@ -1,6 +1,7 @@
 parseChromevol <- function(res.file = "chromEvol.res", anc.tree.file = "MLAncestralReconstruction.tree",
-                           anc.probs.file = "ancestorsProbs.txt", expec.file = "expectations.txt",
+                           anc.probs.file = "ancestorsProbs.txt", expec.file = "expectations.txt", shifts.file = NULL,
                            thresh = 0.5) {
+  require(ape)
   ### res
   readLines(res.file) -> res0
   grep("Previous best ", res0) -> x
@@ -108,8 +109,15 @@ parseChromevol <- function(res.file = "chromEvol.res", anc.tree.file = "MLAncest
   gsub("NA | ", "", all.nodes.events, fixed=T) -> all.nodes.events
   all.nodes.events[which(is.na(all.nodes.events))] <- "None"
   
+  ### shifts 
+  
+  read.tree(shifts.file) -> t0
+  t0$node.label -> anc0
+  unlist(lapply(strsplit(anc0, "-"), "[", 2)) -> t0$node.label
+  t0 -> shifts
+  
   ### return
-  list(res=res, all.events=all.events, events=all.nodes.events, anc=ancs, tree=tree) -> out
+  list(res=res, all.events=all.events, events=all.nodes.events, anc=ancs, tree=tree, shifts=shifts) -> out
   return(out)
   
 }
